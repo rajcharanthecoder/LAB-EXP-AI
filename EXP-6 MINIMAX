@@ -1,0 +1,81 @@
+import math
+
+X, O, E = "X", "O", None
+INITIAL_STATE = [[E] * 3 for _ in range(3)]
+
+def display_board(state):
+    for row in state:
+        print("|".join([cell or " " for cell in row]))
+
+def winner(state, player):
+    return any(all(cell == player for cell in row) for row in state) or \
+        any(all(state[i][j] == player for i in range(3)) for j in range(3)) or \
+        all(state[i][i] == player for i in range(3)) or \
+        all(state[i][2 - i] == player for i in range(3))
+
+def game_over(state):
+    return winner(state, X) or winner(state, O) or not any(cell == E for row in state for cell in row)
+
+def get_empty_cells(state):
+    return [(i, j) for i, row in enumerate(state) for j, cell in enumerate(row) if cell == E]
+
+def alpha_beta_pruning(state, alpha, beta, maximizing_player):
+    if winner(state, O):
+        return (1, None)
+    elif winner(state, X):
+        return (-1, None)
+    elif not get_empty_cells(state):
+        return (0, None)
+    elif maximizing_player:
+        value, move = -math.inf, None
+        for empty_cell in get_empty_cells(state):
+            i, j = empty_cell
+            state[i][j] = O
+            score, _ = alpha_beta_pruning(state, alpha, beta, False)
+            state[i][j] = E
+            if score > value:
+                value, move = score, empty_cell
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value, move
+    else:
+        value, move = math.inf, None
+        for empty_cell in get_empty_cells(state):
+            i, j = empty_cell
+            state[i][j] = X
+            score, _ = alpha_beta_pruning(state, alpha, beta, True)
+            state[i][j] = E
+            if score < value:
+                value, move = score, empty_cell
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value, move
+
+def play():
+    state = INITIAL_STATE
+    current_player = X
+    while not game_over(state):
+        display_board(state)
+        if current_player == X:
+            row, col = map(int, input("Enter row and column (0-2): ").split())
+            if state[row][col] != E:
+                print("Cell is already occupied. Try again.")
+                continue
+            state[row][col] = X
+        else:
+            print("AI player is thinking...")
+            row, col = alpha_beta_pruning(state, -math.inf, math.inf, True)[1]
+            state[row][col] = O
+        current_player = O if current_player == X else X
+    display_board(state)
+    if winner(state, X):
+        print("X has won!")
+    elif winner(state, O):
+        print("O has won!")
+    else:
+        print("Game over. It's a tie.")
+
+play()
+
