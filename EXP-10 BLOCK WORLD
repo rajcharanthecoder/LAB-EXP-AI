@@ -1,0 +1,54 @@
+class BlockWorld:
+    def __init__(self, blocks):
+        self.blocks = blocks
+    
+    def __str__(self):
+        return str(self.blocks)
+    
+    def move(self, block, to_position):
+        new_blocks = self.blocks.copy()
+        old_position = new_blocks[block]
+        new_blocks[block] = to_position
+        return BlockWorld(new_blocks)
+    
+    def is_goal_state(self, goal_state):
+        for block, position in goal_state.items():
+            if self.blocks[block] != position:
+                return False
+        return True
+    
+    def get_possible_actions(self):
+        actions = []
+        for block, position in self.blocks.items():
+            for to_position in range(len(self.blocks)):
+                if to_position != position:
+                    actions.append((block, to_position))
+        return actions
+    
+    def solve(self, goal_state):
+        queue = [(self, [])]
+        visited = set()
+        
+        while queue:
+            current_state, current_path = queue.pop(0)
+            
+            if current_state.is_goal_state(goal_state):
+                return current_path
+            
+            visited.add(str(current_state))
+            
+            for action in current_state.get_possible_actions():
+                next_state = current_state.move(action[0], action[1])
+                
+                if str(next_state) not in visited:
+                    next_path = current_path + [action]
+                    queue.append((next_state, next_path))
+        
+        return None
+
+initial_state = {'A': 0, 'B': 1, 'C': 2}
+goal_state = {'B': 0, 'C': 1, 'A': 2}
+
+bw = BlockWorld(initial_state)
+path = bw.solve(goal_state)
+print(path)
