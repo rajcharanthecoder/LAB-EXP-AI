@@ -1,0 +1,32 @@
+# Define our knowledge base as a list of tuples
+kb = [
+    ('mammal', ['dog']),
+    ('mammal', ['cat']),
+    ('bird', ['penguin']),
+    ('bird', ['eagle']),
+    ('can_fly', ['eagle']),
+]
+
+# Define our inference rules as a list of tuples
+rules = [
+    ('mammal', 'has_fur'),
+    ('bird', 'lays_eggs'),
+]
+
+# Define our inference engine
+def infer(fact):
+    predicate, args = fact
+    for rule in rules:
+        if predicate == rule[0]:
+            if (rule[1], args) not in kb:
+                kb.append((rule[1], args))
+
+# Run the inference engine to derive new facts
+for fact in kb:
+    infer(fact)
+
+# Print the derived facts
+print('has_fur(dog):', ('has_fur', ['dog']) in kb)
+print('lays_eggs(penguin):', ('lays_eggs', ['penguin']) in kb)
+print('can_fly(eagle):', ('can_fly', ['eagle']) in kb)
+
