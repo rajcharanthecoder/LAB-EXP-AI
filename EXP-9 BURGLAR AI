@@ -1,0 +1,22 @@
+import numpy as np
+
+# Define prior probabilities
+p_alarm = 0.01
+p_burglar = 0.001
+
+# Define conditional probabilities
+p_alarm_given_burglar = 0.99
+p_alarm_given_no_burglar = 0.01
+
+# Compute posterior probability
+p_no_burglar = 1 - p_burglar
+p_alarm_no_burglar = p_no_burglar * p_alarm_given_no_burglar
+p_alarm_burglar = p_burglar * p_alarm_given_burglar
+p_alarm = p_alarm_burglar + p_alarm_no_burglar
+p_burglar_alarm = p_alarm_burglar / p_alarm
+
+# Print results
+print("Prior probability of an alarm: ", p_alarm)
+print("Prior probability of a burglar: ", p_burglar)
+print("Posterior probability of a burglar given the alarm: ", p_burglar_alarm)
+
