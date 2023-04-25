@@ -1,0 +1,39 @@
+from typing import Dict, Union
+
+# Define a function to perform unification
+def unify(x: Union[str, int], y: Union[str, int], subs: Dict[str, Union[str, int]]) -> Union[None, Dict[str, Union[str, int]]]:
+    # If x and y are identical, return the substitution
+    if x == y:
+        return subs
+    # If x is a variable, bind it to y
+    elif isinstance(x, str):
+        return unify_var(x, y, subs)
+    # If y is a variable, bind it to x
+    elif isinstance(y, str):
+        return unify_var(y, x, subs)
+    # If x and y are both compound terms, unify their components recursively
+    elif isinstance(x, tuple) and isinstance(y, tuple):
+        return unify(x[1:], y[1:], unify(x[0], y[0], subs))
+    # Otherwise, the terms cannot be unified
+    else:
+        return None
+
+# Define a helper function to bind a variable to a value in a substitution
+def unify_var(var: str, val: Union[str, int], subs: Dict[str, Union[str, int]]) -> Union[None, Dict[str, Union[str, int]]]:
+    # If the variable is already bound, unify its value with the new value
+    if var in subs:
+        return unify(subs[var], val, subs)
+    # If the value is already bound, unify the variable with its value
+    elif val in subs:
+        return unify(var, subs[val], subs)
+    # Otherwise, add the new binding to the substitution
+    else:
+        new_subs = subs.copy()
+        new_subs[var] = val
+        return new_subs
+
+# Unify two terms
+print(unify(('likes', 'John', 'Mary'), ('likes', 'John', 'Alice'), {}))
+
+# Output: {'Mary': 'Alice'}
+
