@@ -1,0 +1,41 @@
+# Define the resolution function
+def resolution(clause1, clause2):
+    resolvents = []
+    for literal1 in clause1:
+        for literal2 in clause2:
+            if literal1 == -literal2:
+                resolvent = clause1.union(clause2) - {literal1, literal2}
+                if not resolvent:
+                    resolvent = {0}
+                resolvents.append(resolvent)
+    return resolvents
+
+# Define the resolution refutation algorithm
+def resolution_refutation(knowledge_base, query):
+    clauses = set(frozenset(clause) for clause in knowledge_base + [frozenset({query})])
+    while True:
+        new_clauses = set()
+        for clause1 in clauses:
+            for clause2 in clauses:
+                if clause1 != clause2:
+                    resolvents = resolution(clause1, clause2)
+                    for resolvent in resolvents:
+                        if resolvent == {0}:
+                            return True
+                        new_clauses.add(frozenset(resolvent))
+        if all(new_clause in clauses for new_clause in new_clauses):
+            return False
+        clauses |= new_clauses
+
+# Example usage
+knowledge_base = [
+    {1, -4, -5},
+    {4, 5},
+    {1, -2},
+    {2, -3},
+    {3, -1},
+]
+query = 4
+result = resolution_refutation(knowledge_base, query)
+print(result)
+
